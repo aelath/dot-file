@@ -137,7 +137,10 @@
 
 (defun rc-javascript-mode ()
   (package-require 'js2-mode)
+  (package-require 'js-comint)
+  (setq inferior-js-program-command "node --interactive")
   (custom-set-variables
+   '(js-expr-indent-offset-4)
    '(js2-bounce-indent-p t)
    '(js2-init-hook (quote (set-tab-width-4))))
 
@@ -148,6 +151,15 @@
       (insert before)
       (insert after)
       (backward-char (length after))))
+
+  ;; js-comint settings
+  (setq inferior-js-mode-hook
+        (lambda ()
+          ;; Deal with some prompt nonsense
+          (add-to-list
+           'comint-preoutput-filter-functions
+           (lambda (output)
+             (replace-regexp-in-string "\033\\[[0-9]+[A-Z]" "" output)))))
 
   (define-key js2-mode-map (kbd "H-l") 'javascript-insert-lambda)
   (define-key js2-mode-map (kbd "C-x C-s") 'cleanup-untabify-save)
