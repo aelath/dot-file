@@ -48,6 +48,19 @@
 
 ;;;; Modes
 
+(defun rc-geiser ()
+  (package-require 'geiser)
+  (setq geiser-racket-binary "/Applications/Racket v6.1/bin/racket")
+  (setq geiser-active-implementations '(racket)))
+
+(defun rc-haskell ()
+  (package-require 'haskell-mode)
+  (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+  (eval-after-load "haskell-mode"
+  '(progn
+     (define-key haskell-mode-map (kbd "C-,") 'haskell-move-nested-left)
+     (define-key haskell-mode-map (kbd "C-.") 'haskell-move-nested-right))))
+
 (defun rc-clojure-mode ()
   (package-require 'cider)
 
@@ -511,7 +524,9 @@ the working directory"
   (rc-javascript-mode)
   (rc-markdown-mode)
   (rc-magit)
-  (rc-git))
+  (rc-git)
+  (rc-haskell)
+  (rc-geiser))
 
 (defun rc-init-site-lisp ()
   (require 'rc-clojure)
