@@ -9,7 +9,7 @@ HISTSIZE=5000
 SAVEHIST=5000
 HISTFILE=~/.zhistory
 
-plugins=(git battery github node colorize sudo virtualenv brew)
+plugins=(git battery github node colorize sudo virtualenv brew docker lein npm)
 source $ZSH/oh-my-zsh.sh
 
 #Aliases
@@ -23,9 +23,6 @@ setopt HIST_IGNORE_ALL_DUPS
 setopt INC_APPEND_HISTORY
 [ "$TERM" = dumb ] && unsetopt zle
 
-#prefer emacs
-if [[ -n $SSH_CONNECTION ]]; then
-  export EDITOR='emacs'
-else
-  export EDITOR='mvim'
-fi
+export EDITOR='emacs'
+
+export NODE_NO_READLINE=1
