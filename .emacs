@@ -2,6 +2,7 @@
 
 (require 'package)
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
 
 (defun package-require (package)
@@ -194,6 +195,15 @@
 
   (require 'sql)
   (add-to-list 'sql-mode-hook 'turn-off-tabs))
+
+;; it's like javascript...only better?
+(defun rc-coffeescript-mode ()
+  (package-require 'coffee-mode)
+
+  (setq whitespace-action '(auto-cleanup))
+  (setq whitespace-style '(trailing space-before-tab indentation empty space-after-tab))
+
+  (custom-set-variables '(coffee-tab-width 2)))
 
 (defun rc-markdown-mode ()
   (interactive)
@@ -570,6 +580,7 @@ the working directory"
   (rc-clojure-mode)
   (rc-java-mode)
   (rc-javascript-mode)
+  (rc-coffeescript-mode)
   (rc-markdown-mode)
   (rc-magit)
   (rc-git)
