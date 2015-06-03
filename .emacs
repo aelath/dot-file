@@ -20,6 +20,12 @@
 (defun rc-osx ()
   (fringe-mode '(1 . 1))
 
+  (defun kill-other-buffers ()
+    "Kill all other buffers."
+    (interactive)
+    (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+  (global-set-key (kbd "M-k") 'kill-other-buffers)
+
   (setenv "EMACS" "/usr/local/bin/emacs")
   (setenv "EDITOR" "/usr/local/bin/emacsclient")
   (setenv "GIT_EDITOR" (getenv "EDITOR"))
@@ -75,6 +81,9 @@
   (define-key haskell-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
   (define-key haskell-mode-map (kbd "C-c c") 'haskell-process-cabal)
   (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space))
+
+(defun rc-rust ()
+  (package-require 'rust-mode))
 
 (defun rc-clojure-mode ()
   (package-require 'cider)

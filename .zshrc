@@ -1,6 +1,6 @@
 # use oh my zsh
 ZSH=$HOME/.oh-my-zsh
-ZSH_THEME="cypher"
+ZSH_THEME=lambda
 
 set -a
 PROMPT='%T %? %m%# '
@@ -16,6 +16,8 @@ source $ZSH/oh-my-zsh.sh
 alias ll='ls -l'
 alias s='git status'
 alias b='git branch -av'
+alias gg='git branch --merged | grep -v "\*" | xargs -n 1 git branch -d'
+alias grunt='grunt --no-color'
 alias irc="TERM=screen-256color irssi"
 
 setopt HIST_IGNORE_ALL_DUPS
@@ -24,7 +26,14 @@ setopt INC_APPEND_HISTORY
 
 export EDITOR='emacs'
 
+export DOCKER_HOST=tcp://127.0.0.1:2376
+export DOCKER_CERT_PATH=/Users/nmenne/.boot2docker/certs/boot2docker-vm
+export DOCKER_TLS_VERIFY=1
+
 export NODE_NO_READLINE=1
 
 # mactex
 # eval `/usr/libexec/path_helper -s`
+
+export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
+
