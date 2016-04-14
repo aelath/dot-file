@@ -9,7 +9,7 @@ HISTSIZE=5000
 SAVEHIST=5000
 HISTFILE=~/.zhistory
 
-plugins=(git battery github node colorize sudo virtualenv brew docker lein npm)
+plugins=(git battery github node colorize sudo virtualenv brew docker docker-compose lein npm vagrant)
 source $ZSH/oh-my-zsh.sh
 
 # Aliases
@@ -19,6 +19,8 @@ alias b='git branch -av'
 alias gg='git branch --merged | grep -v "\*" | xargs -n 1 git branch -d'
 alias grunt='grunt --no-color'
 alias irc="TERM=screen-256color irssi"
+alias nolimit="sudo sh -c 'ulimit -n 3072 && exec su $LOGNAME'"
+alias fv="fortune | tr '[:upper:]' '[:lower:]' | tr '\n' ' ' | sed -r 's/[^a-z]+/-/g' | cut -c 1-60"
 
 setopt HIST_IGNORE_ALL_DUPS
 setopt INC_APPEND_HISTORY
@@ -26,14 +28,15 @@ setopt INC_APPEND_HISTORY
 
 export EDITOR='emacs'
 
-export DOCKER_HOST=tcp://127.0.0.1:2376
-export DOCKER_CERT_PATH=/Users/nmenne/.boot2docker/certs/boot2docker-vm
-export DOCKER_TLS_VERIFY=1
-
 export NODE_NO_READLINE=1
 
 # mactex
 # eval `/usr/libexec/path_helper -s`
 
 export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
+
+export RUST_SRC_PATH="/Users/`whoami`/.rust/src/"
+
+export MANPATH="/usr/local/opt/gnu-sed/libexec/gnuman:$MANPATH"
+export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$(brew --prefix coreutils)/libexec/gnubin":$PATH:"/Users/`whoami`/scripts"
 

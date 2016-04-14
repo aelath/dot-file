@@ -2,7 +2,8 @@
 
 (require 'package)
 (add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/") t)
 (package-initialize)
 
 (defun package-require (package)
@@ -82,11 +83,88 @@
   (define-key haskell-mode-map (kbd "C-c c") 'haskell-process-cabal)
   (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space))
 
+(defun rc-prolog ()
+  (setq prolog-system 'swi)
+  (eval-after-load "prolog-mode"
+    '(progn
+       (define-key prolog-mode-map (kbd "C-c C-k") 'prolog-consult-buffer)))
+  (setq auto-mode-alist (append '(("\\.pl$" . prolog-mode)
+                                  ("\\.m$" . mercury-mode))
+                                auto-mode-alist)))
+
+(defun rc-puppet ()
+  (package-require 'puppet-mode))
+
 (defun rc-rust ()
-  (package-require 'rust-mode))
+  (package-require 'company)
+  (package-require 'company-racer)
+  (package-require 'racer)
+  (package-require 'flycheck)
+  (package-require 'flycheck-rust)
+  (package-require 'compile)
+  (package-require 'rust-mode)
+
+  (global-company-mode)
+
+  ;; hook it up
+  (add-hook 'rust-mode-hook #'racer-mode)
+  (add-hook 'racer-mode-hook #'eldoc-mode)
+  (add-hook 'racer-mode-hook #'company-mode)
+
+  ;; Reduce the time after which the company auto completion popup opens
+  (setq company-idle-delay 0.2)
+
+  ;; Reduce the number of characters before company kicks in
+  (setq company-minimum-prefix-length 4)
+
+  ;; where is racer and the rust src
+  (setq racer-cmd "/usr/local/bin/racer")
+  (setq racer-rust-src-path "/Users/nmenne/.rust/src/")
+
+  (add-to-list 'auto-mode-alist '("\\.rs\\'" . rust-mode))
+
+  (add-hook 'rust-mode-hook
+
+            (lambda ()
+              ;; Enable racer
+              (racer-activate)
+
+              ;; Hook in racer with eldoc to provide documentation
+              (racer-turn-on-eldoc)
+
+              ;; Use flycheck-rust in rust-mode
+              (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+
+              ;; Use company-racer in rust mode
+              (set (make-local-variable 'company-backends) '(company-racer))
+
+              ;; Key binding to jump to method definition
+              (local-set-key (kbd "M-.") #'racer-find-definition)
+
+              ;; Key binding to auto complete and indent
+              (local-set-key (kbd "TAB") #'company-indent-or-complete-common)))
+
+  (add-hook 'rust-mode-hook
+            (lambda ()
+              (set (make-local-variable 'compile-command)
+                   (if (locate-dominating-file (buffer-file-name) "Cargo.toml")
+                       "cargo build"
+                     "rustc *.rs")))))
+
+(defun set-auto-complete-as-completion-at-point-function ()
+  (setq completion-at-point-functions '(auto-complete)))
 
 (defun rc-clojure-mode ()
   (package-require 'cider)
+  (package-require 'ac-cider)
+
+  (add-hook 'cider-mode-hook 'ac-flyspell-workaround)
+  (add-hook 'cider-mode-hook 'ac-cider-setup)
+  (add-hook 'cider-repl-mode-hook 'ac-cider-setup)
+  (eval-after-load "auto-complete"
+    '(progn
+       (add-to-list 'ac-modes 'cider-mode)
+       (add-to-list 'ac-modes 'cider-repl-mode)))
 
   (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
   (add-hook 'cider-repl-mode-hook 'subword-mode)
@@ -104,9 +182,12 @@
         cider-auto-select-error-buffer t
         cider-repl-display-in-current-window t)
 
+  (add-hook 'auto-complete-mode-hook 'set-auto-complete-as-completion-at-point-function)
+  (add-hook 'cider-mode-hook 'set-auto-complete-as-completion-at-point-function)
+
   (setenv "JVM_OPTS" "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n")
   (custom-set-variables
-   '(clojure-defun-indents (quote (and-let unless-let)))))
+   '(clojure-defun-indents (quote (and-let unless-let let-flow async-go-let)))))
 
 (defun clojure-insert-lambda ()
   (interactive)
@@ -168,7 +249,7 @@
   (eval-after-load "cc-mode"
     '(progn
        (add-to-list 'java-mode-hook 'set-tab-width-4)
-       (add-to-list 'java-mode-hook 'turn-on-tabs)
+       (add-to-list 'java-mode-hook 'turn-off-tabs)
        (define-key java-mode-map (kbd "C-x C-s") 'cleanup-save)
        (define-key java-mode-map (kbd "C-c C-t") 'git-make-tags))))
 
@@ -318,20 +399,6 @@
   (define-key narrow-map (kbd "]") 'narrow-to-next-page)
   (define-key narrow-map (kbd "[") 'narrow-to-prev-page))
 
-(defun rc-dim-parens ()
-  (interactive)
-  (defface paren-face
-    '((((class color) (background dark))
-       (:foreground "grey20"))
-      (((class color) (background light))
-       (:foreground "grey80")))
-    "Face used to dim parentheses.")
-  (defun dim-parens-mode ()
-    (interactive)
-    (font-lock-add-keywords nil '(("(\\|)" . 'paren-face))))
-  (add-hook 'emacs-lisp-mode-hook 'dim-parens-mode)
-  (add-hook 'clojure-mode-hook 'dim-parens-mode))
-
 (defun rc-emacs-master ()
   (defalias 'quit-emacs 'save-buffers-kill-terminal)
   (global-unset-key (kbd "C-x C-c"))
@@ -422,35 +489,11 @@ the working directory"
   (add-hook 'before-save-hook 'backup-buffer-force))
 
 (defun rc-look-and-feel ()
-  (rc-font-lg)
-
-  (custom-set-variables
-   '(vc-annotate-background nil)
-   '(vc-annotate-color-map (quote ((20 . "#AA0000") (40 . "#AA3300") (60 . "#AA6600") (80 . "#AA9900") (100 . "#AAAA00") (120 . "#99AA00") (140 . "#66AA00") (160 . "#33AA00") (180 . "#00AA00") (200 . "#00AA33") (220 . "#00AA66") (240 . "#00AA99") (260 . "#00AAAA") (280 . "#0099AA") (300 . "#0066AA") (320 . "#0033AA") (340 . "#0000AA")))))
-
-  (custom-set-faces
-   '(cursor ((t (:background "brown3"))))
-   '(erc-prompt-face ((t (:weight bold))))
-   '(eshell-prompt ((((class color) (background light)) (:foreground "Red4" :weight bold))))
-   '(font-lock-comment-face ((((class color) (min-colors 88) (background light)) (:foreground "grey50"))))
-   '(font-lock-warning-face ((((class color) (min-colors 88) (background light)) (:foreground "Red3" :weight bold))))
-   '(ido-incomplete-regexp ((t (:foreground "grey40"))))
-   '(ido-indicator ((t (:foreground "yellow4"))))
-   '(ido-subdir ((t (:foreground "blue3"))))
-   '(jabber-chat-prompt-foreign ((t (:foreground "red4"))))
-   '(jabber-chat-prompt-local ((t (:foreground "blue4"))))
-   '(jabber-chat-prompt-system ((t (:foreground "green4" :weight bold))))
-   '(message-cited-text ((t (:foreground "red4"))))
-   '(org-mode-line-clock-overrun ((t (:inherit modeline :background "grey" :foreground "red3"))) t)
-   '(org-todo ((((class color) (min-colors 16) (background light)) (:foreground "Red4" :weight bold))))
-   '(rcirc-server ((t (:foreground "grey"))))
-   '(rcirc-timestamp ((t (:inherit default :foreground "grey"))))
-   '(rcirc-track-nick ((t (:foreground "purple" :inverse-video nil))))
-   '(secondary-selection ((((class color) (min-colors 88) (background light)) (:background "LemonChiffon"))))
-   '(show-paren-match ((t (:background "grey85"))))
-   '(show-paren-mismatch ((t (:background "MediumPurple2" :foreground "white"))))
-   '(whitespace-line ((t (:background "gray90"))))
-   '(whitespace-space-after-tab ((t (:background "lightyellow" :foreground "firebrick"))))))
+  (package-require 'color-theme)
+  (color-theme-initialize)
+  (setq color-theme-is-global t)
+  (color-theme-bharadwaj)
+  (rc-font-lg))
 
 (defun turn-on-tabs () (interactive) (setq indent-tabs-mode t))
 (defun turn-off-tabs () (interactive) (setq indent-tabs-mode nil))
@@ -608,7 +651,10 @@ the working directory"
   (rc-magit)
   (rc-git)
   (rc-haskell)
-  (rc-geiser))
+  (rc-geiser)
+  (rc-rust)
+  (rc-prolog)
+  (rc-puppet))
 
 (defun rc-init-site-lisp ()
   (require 'rc-clojure)
