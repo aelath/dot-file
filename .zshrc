@@ -27,7 +27,6 @@ setopt INC_APPEND_HISTORY
 [ "$TERM" = dumb ] && unsetopt zle
 
 export EDITOR='emacs'
-
 export NODE_NO_READLINE=1
 
 # mactex
@@ -39,4 +38,3 @@ export RUST_SRC_PATH="/Users/`whoami`/.rust/src/"
 
 export MANPATH="/usr/local/opt/gnu-sed/libexec/gnuman:$MANPATH"
 export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$(brew --prefix coreutils)/libexec/gnubin":$PATH:"/Users/`whoami`/scripts"
-

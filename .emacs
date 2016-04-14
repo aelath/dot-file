@@ -151,9 +151,6 @@
                        "cargo build"
                      "rustc *.rs")))))
 
-(defun set-auto-complete-as-completion-at-point-function ()
-  (setq completion-at-point-functions '(auto-complete)))
-
 (defun rc-clojure-mode ()
   (package-require 'cider)
   (package-require 'ac-cider)
@@ -299,6 +296,15 @@
 
   (require 'sql)
   (add-to-list 'sql-mode-hook 'turn-off-tabs))
+
+;; it's like javascript...only better?
+(defun rc-coffeescript-mode ()
+  (package-require 'coffee-mode)
+
+  (setq whitespace-action '(auto-cleanup))
+  (setq whitespace-style '(trailing space-before-tab indentation empty space-after-tab))
+
+  (custom-set-variables '(coffee-tab-width 2)))
 
 ;; it's like javascript...only better?
 (defun rc-coffeescript-mode ()
