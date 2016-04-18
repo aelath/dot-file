@@ -163,7 +163,7 @@
        (add-to-list 'ac-modes 'cider-mode)
        (add-to-list 'ac-modes 'cider-repl-mode)))
 
-  (add-hook 'cider-mode-hook 'cider-turn-on-eldoc-mode)
+  (add-hook 'cider-mode-hook 'eldoc-mode)
   (add-hook 'cider-repl-mode-hook 'subword-mode)
   (add-hook 'cider-repl-mode-hook 'paredit-mode)
 
@@ -178,9 +178,6 @@
         cider-repl-result-prefix ";; => "
         cider-auto-select-error-buffer t
         cider-repl-display-in-current-window t)
-
-  (add-hook 'auto-complete-mode-hook 'set-auto-complete-as-completion-at-point-function)
-  (add-hook 'cider-mode-hook 'set-auto-complete-as-completion-at-point-function)
 
   (setenv "JVM_OPTS" "-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n")
   (custom-set-variables
