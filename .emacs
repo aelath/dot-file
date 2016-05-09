@@ -11,14 +11,12 @@
     (package-install package))
   (require package))
 
-(setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH") ":" (getenv "HOME") "/bin"))
-(add-to-list 'exec-path "/usr/local/bin")
-(add-to-list 'exec-path (expand-file-name "~/bin") t)
-
 
 ;;;; Osx
 
 (defun rc-osx ()
+  (package-require 'exec-path-from-shell)
+  (exec-path-from-shell-initialize)
   (fringe-mode '(1 . 1))
 
   (defun kill-other-buffers ()
@@ -63,25 +61,24 @@
 
 (defun rc-haskell ()
   (package-require 'haskell-mode)
-  (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
-  (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-  (eval-after-load "haskell-mode"
-  '(progn
-     (define-key haskell-mode-map (kbd "C-,") 'haskell-move-nested-left)
-     (define-key haskell-mode-map (kbd "C-.") 'haskell-move-nested-right)))
-
-  (custom-set-variables
-   '(haskell-process-suggest-remove-import-lines t)
-   '(haskell-process-auto-import-loaded-modules t)
-   '(haskell-process-log t))
   (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
-  (define-key haskell-mode-map (kbd "C-`") 'haskell-interactive-bring)
-  (define-key haskell-mode-map (kbd "C-c C-t") 'haskell-process-do-type)
-  (define-key haskell-mode-map (kbd "C-c C-i") 'haskell-process-do-info)
-  (define-key haskell-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
-  (define-key haskell-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
-  (define-key haskell-mode-map (kbd "C-c c") 'haskell-process-cabal)
-  (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space))
+  (add-hook 'haskell-mode-hook 'haskell-doc-mode)
+  (add-hook 'haskell-mode-hook 'haskell-indentation-mode)
+  (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+  (add-hook 'haskell-mode-hook 'haskell-decl-scan-mode)
+  (setq haskell-process-type 'stack-ghci)
+  (setq haskell-process-path-ghci "stack")
+  (setq haskell-process-args-ghci "ghci")
+
+  (package-require 'flycheck)
+  (package-require 'flycheck-haskell)
+  (add-hook 'haskell-mode-hook 'flycheck-mode)
+  (add-hook 'flycheck-mode-hook 'flycheck-haskell-configure)
+
+  (package-require 'company)
+  (package-require 'company-ghci)
+  (push 'company-ghci company-backends)
+  (add-hook 'haskell-mode-hook 'company-mode))
 
 (defun rc-prolog ()
   (setq prolog-system 'swi)
